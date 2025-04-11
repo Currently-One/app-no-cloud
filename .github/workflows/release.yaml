@@ -1,0 +1,40 @@
+name: flutter-release
+
+on:
+  release:
+    types: [released]
+jobs:
+  flutter-release-android:
+    runs-on: [ self-hosted, macos ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: 3.19.6
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: cp ~/Downloads/currently_flutter.android.key.properties ./android/key.properties
+      - id: build_name
+        run: REF_NAME=${{github.ref_name}}; VERSION_NAME=${REF_NAME##*v}; echo "::set-output name=stripped::${VERSION_NAME%.*}"
+      - id: build_Android_prod
+        run: flutter build appbundle --release --no-tree-shake-icons --build-name ${{steps.build_name.outputs.stripped}} --build-number ${{github.run_number}}
+      - run: cp build/app/outputs/bundle/release/app-release.aab ~/Downloads/currently-one-${{steps.build_name.outputs.stripped}}.${{github.run_number}}.aab
+      - run: ls -la ~/Downloads/currently-one-*
+
+  flutter-release-ios:
+    runs-on: [ self-hosted, macos ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: 3.19.6
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - id: build_name
+        run: REF_NAME=${{github.ref_name}}; VERSION_NAME=${REF_NAME##*v}; echo "::set-output name=stripped::${VERSION_NAME%.*}"
+      - id: build_iOS_prod
+        run: flutter build ipa --release --no-tree-shake-icons --build-name ${{steps.build_name.outputs.stripped}} --build-number ${{github.run_number}}
+      - run: cp build/ios/ipa/currently_flutter.ipa ~/Downloads/currently-one-${{steps.build_name.outputs.stripped}}.${{github.run_number}}.ipa
+      - run: ls -la ~/Downloads/currently-one-*
