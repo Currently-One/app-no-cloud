@@ -1,6 +1,6 @@
-# currently_local
+# app-no-cloud
 
-Currently app for local access only
+Multi-platform Flutter app for Currently One local access without cloud.
 
 ## Getting Started
 
