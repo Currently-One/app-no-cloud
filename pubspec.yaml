@@ -33,6 +33,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   eventsource: ^0.4.0
+  nsd: ^4.0.3
   provider: ^6.1.4
 
 dev_dependencies:
