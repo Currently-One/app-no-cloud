@@ -19,5 +19,4 @@ jobs:
       - run: flutter pub get
       - run: cp ~/Downloads/currently_flutter.android.key.properties ./android/key.properties
       - run: flutter build apk --release --no-tree-shake-icons
-      - run: cp build/app/outputs/flutter-apk/app-release.apk ~/Downloads/currently_local-SNAPSHOT.apk
-      - run: ls -la ~/Downloads/currently_local-*
+      - run: ls -la build/app/outputs/flutter-apk/app-release.apk
