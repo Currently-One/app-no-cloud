@@ -18,8 +18,7 @@ jobs:
         run: REF_NAME=${{github.ref_name}}; VERSION_NAME=${REF_NAME##*v}; echo "::set-output name=stripped::${VERSION_NAME%.*}"
       - id: build_Android_prod
         run: flutter build appbundle --release --no-tree-shake-icons --build-name ${{steps.build_name.outputs.stripped}} --build-number ${{github.run_number}}
-      - run: cp build/app/outputs/bundle/release/app-release.aab ~/Downloads/currently-one-${{steps.build_name.outputs.stripped}}.${{github.run_number}}.aab
-      - run: ls -la ~/Downloads/currently-one-*
+      - run: cp build/app/outputs/bundle/release/app-release.aab ~/Downloads/currently_local-${{steps.build_name.outputs.stripped}}.${{github.run_number}}.aab
 
   flutter-release-ios:
     runs-on: [ self-hosted, macos ]
@@ -35,4 +34,3 @@ jobs:
       - id: build_iOS_prod
         run: flutter build ipa --release --no-tree-shake-icons --build-name ${{steps.build_name.outputs.stripped}} --build-number ${{github.run_number}}
       - run: cp build/ios/ipa/currently_local.ipa ~/Downloads/currently_local-${{steps.build_name.outputs.stripped}}.${{github.run_number}}.ipa
-      - run: ls -la ~/Downloads/currently_local-*
