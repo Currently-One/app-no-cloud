@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart';
 
 import 'main/select_device_widget.dart';
 
 void main() {
-  runApp(const AppWidget());
+  tz.initializeTimeZones();
+  runApp(AppWidget());
 }
 
 class AppWidget extends StatelessWidget {
-  const AppWidget({super.key});
+  static late final Location defaultLocation;
+
+  AppWidget({super.key}) {
+    defaultLocation = getLocation("Europe/Stockholm");
+  }
 
   @override
   Widget build(BuildContext context) {

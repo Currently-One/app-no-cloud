@@ -1,15 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:currently_local/main.dart';
+import 'package:currently_local/model/states.dart';
 import 'package:eventsource/eventsource.dart';
 import 'package:flutter/material.dart';
+import 'package:timezone/timezone.dart';
 
 class Device extends ChangeNotifier {
+
   final String deviceId;
   String? localIP;
   String? name;
   String? remoteUrl;
   String? status;
+
+  final StatesCache _statesCache = StatesCache();
 
   Device({
     required this.deviceId,
@@ -30,6 +36,14 @@ class Device extends ChangeNotifier {
     return sub;
   }
 
+  Location get location => AppWidget.defaultLocation;
+
+  StatesCache get states => _statesCache;
+
+  void _addState(StateEvent state) {
+    _statesCache.add(state);
+  }
+
   Future<StreamSubscription>? _connect(String authorityOrUrl) {
     const path = "events";
     final url = authorityOrUrl.startsWith("https://")
@@ -40,9 +54,7 @@ class Device extends ChangeNotifier {
     return EventSource.connect(url).then((eventSource) => eventSource
             .timeout(const Duration(seconds: 20), onTimeout: (EventSink sink) {
           debugPrint(' timeout 20 for $deviceId');
-          // _eventSub?.cancel();
-          // _sendPort.send(StatusEvent(online: false));
-          // _connect();
+          _connect(authorityOrUrl);
         }).listen(
           _onEvent,
           onDone: () {
@@ -66,6 +78,8 @@ class Device extends ChangeNotifier {
             notifyListeners();
             break;
           case "state":
+            final stateEvent = StateEvent.fromJson(jsonMap);
+            _addState(stateEvent);
             break;
           case "transition":
             break;
