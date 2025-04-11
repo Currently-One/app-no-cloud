@@ -9,8 +9,8 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  flutter-build:
-    runs-on: [ self-hosted, macos ]
+  build-apk-snapshot:
+    runs-on: [ self-hosted, macOS ]
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
