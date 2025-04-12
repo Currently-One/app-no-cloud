@@ -18,7 +18,7 @@ class SelectDeviceWidget extends StatefulWidget {
 
 class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
   final _available = SplayTreeMap<String, Device>();
-  Device? _selected;
+  Device? _selectedDevice;
   Discovery? _discovery;
   static final String serviceName =
       Platform.isAndroid ? "_currently._tcp" : "_currently._tcp.";
@@ -35,7 +35,7 @@ class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
     sub?.then((s) {
       setState(() {
         _available[device.deviceId] = device;
-        _selected ??= device;
+        _selectedDevice ??= device;
       });
     });
   }
@@ -79,15 +79,36 @@ class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
       .toList(growable: false);
 
   void _onSelectedDevice(Device? maybe) => setState(() {
-        _selected = maybe;
+        _selectedDevice = maybe;
       });
 
   @override
   Widget build(BuildContext context) {
+    Widget _buildBottomNavigationBar() => Container(
+        color: Theme.of(context).colorScheme.secondary,
+        padding: const EdgeInsets.fromLTRB(8, 16, 8, 35),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            vertical: 2,
+            horizontal: 0,
+          ),
+          height: 64,
+          decoration: ShapeDecoration(
+            // color: CurrentlyApp.neutralWhite,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [],
+          ),
+        ));
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider<Device?>.value(value: _selected),
-          ChangeNotifierProvider<StatesCache?>.value(value: _selected?.states),
+          ChangeNotifierProvider<Device?>.value(value: _selectedDevice),
+          ChangeNotifierProvider<StatesCache?>.value(value: _selectedDevice?.states),
         ],
         child: Consumer<Device?>(
             builder: (context, device, child) => Scaffold(
@@ -104,6 +125,7 @@ class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
                   body: Center(
                     child: AnalysisTab(),
                   ),
+              bottomNavigationBar: _buildBottomNavigationBar(),
                 )));
   }
 }
