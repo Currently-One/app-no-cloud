@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:currently_local/main.dart';
+import 'package:currently_local/model/hourly.dart';
 import 'package:currently_local/model/states.dart';
 import 'package:eventsource/eventsource.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class Device extends ChangeNotifier {
   String? remoteUrl;
   String? status;
 
+  late HourlyEvents _hourlyEvents;
   final StatesCache _statesCache = StatesCache();
 
   Device({
@@ -22,7 +24,9 @@ class Device extends ChangeNotifier {
     this.localIP,
     this.name,
     this.remoteUrl,
-  });
+  }) {
+    _hourlyEvents = HourlyEvents(location);
+  }
 
   Future<StreamSubscription>? listen() {
     Future<StreamSubscription>? sub;
@@ -36,9 +40,15 @@ class Device extends ChangeNotifier {
     return sub;
   }
 
+  HourlyEvents get hours => _hourlyEvents;
+
   Location get location => AppWidget.defaultLocation;
 
   StatesCache get states => _statesCache;
+
+  void _addHourly(Hourly hourly) {
+    _hourlyEvents.add(hourly);
+  }
 
   void _addState(StateEvent state) {
     _statesCache.add(state);
@@ -54,6 +64,7 @@ class Device extends ChangeNotifier {
     return EventSource.connect(url).then((eventSource) => eventSource
             .timeout(const Duration(seconds: 20), onTimeout: (EventSink sink) {
           debugPrint(' timeout 20 for $deviceId');
+          sink.close();
           _connect(authorityOrUrl);
         }).listen(
           _onEvent,
@@ -88,7 +99,8 @@ class Device extends ChangeNotifier {
           case "progress":
             break;
           case "hourly":
-            // debugPrint('${event.event} ${event.data} from $deviceId');
+            final hourlyEvent = Hourly.fromJson(jsonMap);
+            _addHourly(hourlyEvent);
             break;
         }
       } catch (fe) {

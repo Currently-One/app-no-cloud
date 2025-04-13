@@ -31,8 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
 
+  community_charts_flutter: 1.0.4
+  community_charts_common: 1.0.4
   cupertino_icons: ^1.0.8
   eventsource: ^0.4.0
+  iconoir_flutter: ^7.3.0
+  intl: ^0.20.2
   nsd: ^4.0.3
   provider: ^6.1.4
   timezone: ^0.9.4

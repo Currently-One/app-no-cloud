@@ -4,18 +4,20 @@ import 'package:flutter/material.dart';
 
 class StateEvent {
   final int t;
-  int? w, wh;
+  int? w, wh, ph;
 
   StateEvent({
     required this.t,
     this.w,
     this.wh,
+    this.ph,
   });
 
   factory StateEvent.fromJson(Map<String, dynamic> map) => StateEvent(
     t: map["sec"],
     w: map["W"],
     wh: map["Wh"],
+    ph: map["Ph"],
   );
 }
 
@@ -29,4 +31,6 @@ class StatesCache extends ChangeNotifier {
   }
 
   get size => _states.length;
+
+  StateEvent? get last => _states.isEmpty ? null : _states.values.last;
 }

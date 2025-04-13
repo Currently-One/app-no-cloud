@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:currently_local/model/device.dart';
 import 'package:currently_local/model/states.dart';
 import 'package:flutter/material.dart';
+import 'package:iconoir_flutter/iconoir_flutter.dart' as iconoir;
 import 'package:nsd/nsd.dart';
 import 'package:provider/provider.dart';
 
 import '../analysis/analysis_tab.dart';
+import '../main.dart';
 
 class SelectDeviceWidget extends StatefulWidget {
   const SelectDeviceWidget({super.key});
@@ -20,6 +22,7 @@ class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
   final _available = SplayTreeMap<String, Device>();
   Device? _selectedDevice;
   Discovery? _discovery;
+  Widget _selectedTab = AnalysisTab();
   static final String serviceName =
       Platform.isAndroid ? "_currently._tcp" : "_currently._tcp.";
 
@@ -71,10 +74,17 @@ class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
     });
   }
 
-  List<DropdownMenuEntry<Device>> _dropdownMenuEntries() => _available.values
-      .map((device) => DropdownMenuEntry(
+  List<DropdownMenuItem<Device>> _dropdownMenuItems() => _available.values
+      .map((device) => DropdownMenuItem(
             value: device,
-            label: device.name ?? device.deviceId,
+            child: Text(
+              device.name ?? device.deviceId,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+              ),
+            ),
           ))
       .toList(growable: false);
 
@@ -84,7 +94,28 @@ class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Widget _buildBottomNavigationBar() => Container(
+    Widget buildNavigationButton(Widget icon, Widget tab) => ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: _selectedTab == tab
+                ? WidgetStatePropertyAll(
+                    Theme.of(context).colorScheme.secondary)
+                : null,
+            overlayColor: const WidgetStatePropertyAll(AppWidget.neutralWhite),
+            elevation: const WidgetStatePropertyAll(0),
+            minimumSize: const WidgetStatePropertyAll(Size(56, 48)),
+            padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+          ),
+          onPressed: _selectedTab != tab
+              ? () {
+                  setState(() {
+                    _selectedTab = tab;
+                  });
+                }
+              : null,
+          child: icon,
+        );
+
+    Widget buildBottomNavigationBar() => Container(
         color: Theme.of(context).colorScheme.secondary,
         padding: const EdgeInsets.fromLTRB(8, 16, 8, 35),
         child: Container(
@@ -94,7 +125,7 @@ class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
           ),
           height: 64,
           decoration: ShapeDecoration(
-            // color: CurrentlyApp.neutralWhite,
+            color: AppWidget.neutralWhite,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(40),
             ),
@@ -102,30 +133,37 @@ class _SelectDeviceWidgetState extends State<SelectDeviceWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [],
+            children: [
+              buildNavigationButton(
+                  iconoir.StatsUpSquare(
+                      width: 36,
+                      height: 36,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                  AnalysisTab()),
+            ],
           ),
         ));
+
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<Device?>.value(value: _selectedDevice),
-          ChangeNotifierProvider<StatesCache?>.value(value: _selectedDevice?.states),
+          ChangeNotifierProvider<StatesCache?>.value(
+              value: _selectedDevice?.states),
         ],
         child: Consumer<Device?>(
             builder: (context, device, child) => Scaffold(
                   appBar: AppBar(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.inversePrimary,
-                    title: DropdownMenu<Device>(
-                      width: 200,
-                      dropdownMenuEntries: _dropdownMenuEntries(),
-                      initialSelection: device,
-                      onSelected: _onSelectedDevice,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    title: DropdownButton<Device>(
+                      items: _dropdownMenuItems(),
+                      value: device,
+                      onChanged: _onSelectedDevice,
                     ),
                   ),
                   body: Center(
-                    child: AnalysisTab(),
+                    child: null != device ? _selectedTab : null,
                   ),
-              bottomNavigationBar: _buildBottomNavigationBar(),
+                  bottomNavigationBar: buildBottomNavigationBar(),
                 )));
   }
 }
