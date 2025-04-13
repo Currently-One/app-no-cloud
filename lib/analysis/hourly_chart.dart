@@ -56,10 +56,20 @@ class HourlyChart extends StatelessWidget {
   }
 
   List<common.AnnotationSegment<Object>> get _rangeAnnotations {
-    final ranges = <common.AnnotationSegment<Object>>[];
-    DateTime dt = startHour;
+    final ranges = <common.AnnotationSegment<Object>>[
+      charts.LineAnnotationSegment(
+        startHour,
+        charts.RangeAnnotationAxisType.domain,
+        strokeWidthPx: 2.0,
+        labelPosition: charts.AnnotationLabelPosition.margin,
+        labelDirection: charts.AnnotationLabelDirection.horizontal,
+        middleLabel: 'kWh',
+      ),
+
+    ];
+    DateTime dt = startHour.add(Duration(hours: 1));
     while (dt.isBefore(endHour)) {
-      final s = dateFormat.format(dt); // dt.hour.toString().padLeft(2, "0");
+      final s = dateFormat.format(dt);
       // ticks
       if (hourLabels.contains(s)) {
         final las = charts.LineAnnotationSegment(

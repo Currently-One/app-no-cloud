@@ -1,5 +1,6 @@
 import 'package:currently_local/main.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart';
 
@@ -15,6 +16,7 @@ class AnalysisTab extends StatefulWidget {
 }
 
 class _AnalysisState extends State<AnalysisTab> {
+  static final selectorFormat = DateFormat("d MMM");
   int _dayShift = 0;
 
   void _onPreviousDay() => setState(() {
@@ -26,6 +28,12 @@ class _AnalysisState extends State<AnalysisTab> {
           _dayShift++;
         }
       });
+
+  void Function()? _onToday() => 0 == _dayShift
+      ? null
+      : () => setState(() {
+            _dayShift = 0;
+          });
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +51,19 @@ class _AnalysisState extends State<AnalysisTab> {
             children: [
               IconButton(
                   onPressed: _onPreviousDay, icon: Icon(Icons.arrow_back_ios)),
+              Text(
+                selectorFormat.format(startHour),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onBackground,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               IconButton(
                   onPressed: _onNextDay, icon: Icon(Icons.arrow_forward_ios)),
+              ElevatedButton(
+                  onPressed: _onToday(),
+                  child: Icon(Icons.calendar_today_rounded)),
             ],
           );
         }
